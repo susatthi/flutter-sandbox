@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "animated_container",
+      "program": "lib/main_animated_container.dart",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "hero",
+      "program": "lib/main_hero.dart",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "singleton",
+      "program": "lib/main_singleton.dart",
+      "request": "launch",
+      "type": "dart"
+    }
+  ]
+}
