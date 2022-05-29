@@ -18,6 +18,12 @@
       "program": "lib/main_singleton.dart",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "riverpod_launch_snackbar",
+      "program": "lib/main_riverpod_launch_snackbar.dart",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }
