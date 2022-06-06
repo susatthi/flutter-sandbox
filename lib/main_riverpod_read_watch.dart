@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'logger.dart';
+
 void main() {
   runApp(
     const ProviderScope(
@@ -51,11 +53,7 @@ class MyHomePage extends ConsumerWidget {
               'You have pushed the button this many times:',
             ),
             Text(
-              counter.when(
-                data: (data) => '$data',
-                error: (e, _) => '$e',
-                loading: () => 'loading...',
-              ),
+              '$counter',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
@@ -88,35 +86,118 @@ class CounterRepository {
   }
 }
 
-final counterRepositoryProvider = Provider<CounterRepository>(
-  (ref) => CounterRepository(),
+final counterRepositoryProvider = Provider.autoDispose<CounterRepository>(
+  (ref) {
+    final repository = CounterRepository();
+    ref.onDispose(() {
+      logger.i('Disposed Repository: hashCode = ${repository.hashCode}');
+    });
+    logger.i('Created Repository: hashCode = ${repository.hashCode}');
+    return repository;
+  },
 );
 
+// パターン①：ref.watch()したRepositoryインスタンスをCounterStateNotifierに与える
+// 結果：Repositoryがrefreshした時点でCounterStateNotifierが再生成されて_load()が発火してリビルドされて0になる。
 final counterProvider =
-    StateNotifierProvider<CounterStateNotifier, AsyncValue<int>>(
+    StateNotifierProvider.autoDispose<CounterStateNotifier, int>(
   (ref) {
     final counterRepository = ref.watch(counterRepositoryProvider);
     return CounterStateNotifier(counterRepository);
   },
 );
 
-class CounterStateNotifier extends StateNotifier<AsyncValue<int>> {
-  CounterStateNotifier(this.counterRepository)
-      : super(const AsyncValue.loading()) {
+class CounterStateNotifier extends StateNotifier<int> {
+  CounterStateNotifier(this.counterRepository) : super(0) {
     _load();
   }
 
   final CounterRepository counterRepository;
 
   Future<void> _load() async {
-    state = await AsyncValue.guard(() async {
-      return counterRepository.get();
-    });
+    state = await counterRepository.get();
   }
 
   Future<void> increment() async {
-    state = const AsyncValue.loading();
     await counterRepository.increment();
     await _load();
   }
 }
+
+// // パターン②：ref.read()したRepositoryインスタンスをCounterStateNotifierに与える
+// // 結果：RepositoryがrefreshしてもCounterStateNotifierは古いRepositoryを使い続けてしまう
+// final counterProvider =
+//     StateNotifierProvider.autoDispose<CounterStateNotifier, int>(
+//   (ref) {
+//     final counterRepository = ref.read(counterRepositoryProvider);
+//     return CounterStateNotifier(counterRepository);
+//   },
+// );
+
+// class CounterStateNotifier extends StateNotifier<int> {
+//   CounterStateNotifier(this.counterRepository) : super(0) {
+//     _load();
+//   }
+
+//   final CounterRepository counterRepository;
+
+//   Future<void> _load() async {
+//     state = await counterRepository.get();
+//   }
+
+//   Future<void> increment() async {
+//     await counterRepository.increment();
+//     await _load();
+//   }
+// }
+
+// // パターン③：ref.readをRepositoryインスタンスに与えて、コンストラクタでRepositoryをreadする
+// // 結果：RepositoryがrefreshしてもCounterStateNotifierは古いRepositoryを使い続けてしまう
+// final counterProvider =
+//     StateNotifierProvider.autoDispose<CounterStateNotifier, int>(
+//   (ref) => CounterStateNotifier(ref.read),
+// );
+
+// class CounterStateNotifier extends StateNotifier<int> {
+//   CounterStateNotifier(Reader read)
+//       : counterRepository = read(counterRepositoryProvider),
+//         super(0) {
+//     _load();
+//   }
+
+//   final CounterRepository counterRepository;
+
+//   Future<void> _load() async {
+//     state = await counterRepository.get();
+//   }
+
+//   Future<void> increment() async {
+//     await counterRepository.increment();
+//     await _load();
+//   }
+// }
+
+// // パターン④：ref.readをRepositoryインスタンスに与えて、Repositoryを使うときに都度readする
+// // 結果：_load()が終わるとRepositoryが破棄されてしまうので、ずっと0のまま
+// final counterProvider =
+//     StateNotifierProvider.autoDispose<CounterStateNotifier, int>(
+//   (ref) => CounterStateNotifier(ref.read),
+// );
+
+// class CounterStateNotifier extends StateNotifier<int> {
+//   CounterStateNotifier(this._read) : super(0) {
+//     _load();
+//   }
+
+//   final Reader _read;
+
+//   Future<void> _load() async {
+//     state = await _read(counterRepositoryProvider).get();
+//   }
+
+//   Future<void> increment() async {
+//     await _read(counterRepositoryProvider).increment();
+//     await _load();
+//   }
+// }
+
