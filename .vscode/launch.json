@@ -24,6 +24,12 @@
       "program": "lib/main_riverpod_launch_snackbar.dart",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "riverpod_read_watch",
+      "program": "lib/main_riverpod_read_watch.dart",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }
