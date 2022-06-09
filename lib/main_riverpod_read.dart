@@ -54,14 +54,6 @@ class MyHomePage extends ConsumerWidget {
             },
             icon: const Icon(Icons.settings),
           ),
-          IconButton(
-            onPressed: () {
-              logger.i('START refresh counterRepositoryProvider');
-              ref.refresh(counterRepositoryProvider);
-              logger.i('END refresh counterRepositoryProvider');
-            },
-            icon: const Icon(Icons.refresh),
-          )
         ],
       ),
       body: Center(
@@ -127,7 +119,7 @@ class SettingPage extends ConsumerWidget {
   }
 }
 
-final sharedPreferencesProvider = Provider<SharedPreferences>(
+final sharedPreferencesProvider = Provider.autoDispose<SharedPreferences>(
   (ref) => throw UnimplementedError(),
 );
 
@@ -135,9 +127,9 @@ final counterRepositoryProvider = Provider.autoDispose<CounterRepository>(
   (ref) {
     final repository = CounterRepository(ref.read);
     ref.onDispose(() {
-      logger.i('[Dispose] CounterRepository ${repository.hashCode}');
+      logger.v('[Dispose] CounterRepository ${repository.hashCode}');
     });
-    logger.i('[Created] CounterRepository ${repository.hashCode}');
+    logger.v('[Created] CounterRepository ${repository.hashCode}');
     return repository;
   },
 );
@@ -165,9 +157,9 @@ final counterProvider =
   (ref) {
     final notifier = CounterStateNotifier(ref.read);
     ref.onDispose(() {
-      logger.i('[Dispose] CounterStateNotifier ${notifier.hashCode}');
+      logger.v('[Dispose] CounterStateNotifier ${notifier.hashCode}');
     });
-    logger.i('[Created] CounterStateNotifier ${notifier.hashCode}');
+    logger.v('[Created] CounterStateNotifier ${notifier.hashCode}');
     return notifier;
   },
 );
@@ -193,12 +185,20 @@ class CounterStateNotifier extends StateNotifier<int> {
   }
 }
 
+/// numberProviderはautoDisposeつけてて値（状態）をメモリで保持している
+/// ので参照されなくなったら破棄されて値も初期値に戻る
+/// 参照しているのは２箇所
+/// ① 設定画面
+/// ② CounterStateNotifierのincrement()
+/// ② は都度参照で保持はしていないため、参照しているのは実質①のみになる。
+/// 従って、設定画面を抜けると値が初期値に戻ってしまう。
+/// autoDisposeを止めれば問題なし。
 final numberProvider = StateProvider.autoDispose<int>(
   (ref) {
     ref.onDispose(() {
-      logger.i('[Dispose] number');
+      logger.v('[Dispose] number');
     });
-    logger.i('[Created] number');
+    logger.v('[Created] number');
     return 1;
   },
 );
