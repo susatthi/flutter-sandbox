@@ -30,6 +30,12 @@
       "program": "lib/main_riverpod_read_watch.dart",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "riverpod_read",
+      "program": "lib/main_riverpod_read.dart",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }

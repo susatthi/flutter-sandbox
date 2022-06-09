@@ -12,6 +12,7 @@ dependencies:
   flutter_riverpod: ^1.0.4
   freezed_annotation: ^2.0.3
   roggle: ^0.2.1
+  shared_preferences: ^2.0.15
   url_launcher: ^6.1.2
 
 dev_dependencies:
