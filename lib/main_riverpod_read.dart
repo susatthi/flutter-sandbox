@@ -185,14 +185,31 @@ class CounterStateNotifier extends StateNotifier<int> {
   }
 }
 
-/// numberProviderはautoDisposeつけてて値（状態）をメモリで保持している
-/// ので参照されなくなったら破棄されて値も初期値に戻る
-/// 参照しているのは２箇所
+/// numberProviderはautoDisposeつけているので参照されなくなったら破棄される。
+/// 値（状態）をメモリで保持しているので破棄されたら値が初期値（1）に戻る。
+///
+/// numberProviderを参照しているのは２箇所
 /// ① 設定画面
 /// ② CounterStateNotifierのincrement()
-/// ② は都度参照で保持はしていないため、参照しているのは実質①のみになる。
-/// 従って、設定画面を抜けると値が初期値に戻ってしまう。
-/// autoDisposeを止めれば問題なし。
+///
+/// ② は都度参照（`_read(numberProvider)`）で参照値の保持はしていないため、
+/// 設定画面を抜けると参照されなくなりnumberProviderが破棄され値が初期値（1）に戻ってしまう（NG動作）。
+///
+/// 修正方法は次の２つ。
+/// A.autoDisposeをやめる
+///  => 参照されなくなっても破棄されず値は維持される
+/// B.次のようにCounterStateNotifierのコンストラクタに`ref.watch`で取得したnumberを与える
+/// 　=> 参照が維持され破棄されなくなる
+///
+/// ```
+/// return CounterStateNotifier(
+///   number: ref.watch(numberProvider),
+/// );
+/// ```
+///
+/// 試しに、CounterStateNotifierのコンストラクタにAutoDisposeRef（ref）を与えて
+/// CounterStateNotifier内部で`ref.watch(numberProvider)`したけど参照は維持されず
+/// NG動作のままでした。
 final numberProvider = StateProvider.autoDispose<int>(
   (ref) {
     ref.onDispose(() {
