@@ -211,14 +211,15 @@ class CounterStateNotifier extends StateNotifier<int> {
 /// A.このケースではautoDisposeをやめる
 ///  => 参照されなくなっても破棄されず値は維持される
 ///  => autoDisposeを正しく理解し運用する必要がある
-/// B.次のようにCounterStateNotifierのコンストラクタに`ref.watch`で取得したnumberを与える
+/// B.Riverpod 2.0.0 で追加された ref.keepAlive(); を使う
+///  => 参照されなくなっても破棄されず値は維持される
+///  => keepAlive()を正しく理解し運用する必要がある
+/// C.次のようにCounterStateNotifierのコンストラクタに`ref.watch`で取得したnumberを与える
 /// 　=> autoDisposeを付けていても参照が維持され破棄されなくなる
 ///
-/// ```
 /// return CounterStateNotifier(
 ///   number: ref.watch(numberProvider),
 /// );
-/// ```
 ///
 /// 試しに、CounterStateNotifierのコンストラクタにAutoDisposeRef（ref）を与えて
 /// CounterStateNotifier内部で`ref.watch(numberProvider)`したけど参照は維持されず
@@ -235,6 +236,7 @@ final numberProvider = StateProvider.autoDispose<int>(
       logger.v('[Dispose] number');
     });
     logger.v('[Created] number');
+    // ref.keepAlive();
     return 1;
   },
 );
