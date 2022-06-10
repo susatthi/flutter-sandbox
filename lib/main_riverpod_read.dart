@@ -185,6 +185,13 @@ class CounterStateNotifier extends StateNotifier<int> {
   }
 }
 
+/// ＜実装者の意図＞
+/// 設定画面を抜けてもnumberProviderは維持させたい。
+/// メモリ効率化の観点からautoDisposeはつけておきたい。
+///
+/// ＜実際の動き＞
+/// 設定画面を抜けるとnumberProvierの値が初期値（1）に戻ってしまう（NG動作）
+///
 /// numberProviderはautoDisposeつけているので参照されなくなったら破棄される。
 /// 値（状態）をメモリで保持しているので破棄されたら値が初期値（1）に戻る。
 ///
@@ -193,13 +200,19 @@ class CounterStateNotifier extends StateNotifier<int> {
 /// ② CounterStateNotifierのincrement()
 ///
 /// ② は都度参照（`_read(numberProvider)`）で参照値の保持はしていないため、
-/// 設定画面を抜けると参照されなくなりnumberProviderが破棄され値が初期値（1）に戻ってしまう（NG動作）。
+/// 設定画面を抜けると参照されなくなりnumberProviderが破棄され値が初期値（1）に戻ってしまう。
 ///
-/// 修正方法は次の２つ。
-/// A.autoDisposeをやめる
+/// ＜問題点＞
+/// Riverpodへの深い理解無しに（脳死で）Readerをコンストラクタに渡して都度参照（`_read(numberProvider)`）
+/// していると、上記のような不具合が混入するリスクがある。このようなリスクは排除しておいたほうがよいと思う。
+///
+/// ＜改善方法＞
+/// 改善方法は次の２つ。
+/// A.このケースではautoDisposeをやめる
 ///  => 参照されなくなっても破棄されず値は維持される
+///  => autoDisposeを正しく理解し運用する必要がある
 /// B.次のようにCounterStateNotifierのコンストラクタに`ref.watch`で取得したnumberを与える
-/// 　=> 参照が維持され破棄されなくなる
+/// 　=> autoDisposeを付けていても参照が維持され破棄されなくなる
 ///
 /// ```
 /// return CounterStateNotifier(
@@ -210,6 +223,12 @@ class CounterStateNotifier extends StateNotifier<int> {
 /// 試しに、CounterStateNotifierのコンストラクタにAutoDisposeRef（ref）を与えて
 /// CounterStateNotifier内部で`ref.watch(numberProvider)`したけど参照は維持されず
 /// NG動作のままでした。
+///
+/// ＜とはいえ＞
+/// ここまで書いて、上記問題点は考えすぎな気がしてきました。
+/// ・Reader をコンストラクタに渡して都度Providerを参照する
+/// ・autoDisposeをちゃんと理解して適切に運用する
+/// でも問題ないと思いました！
 final numberProvider = StateProvider.autoDispose<int>(
   (ref) {
     ref.onDispose(() {
