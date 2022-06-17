@@ -36,6 +36,12 @@
       "program": "lib/main_riverpod_read.dart",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "material_design_3",
+      "program": "lib/main_material_design_3.dart",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }
