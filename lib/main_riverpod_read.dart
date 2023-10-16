@@ -62,7 +62,7 @@ class MyHomePage extends ConsumerWidget {
           children: [
             Text(
               '$counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
@@ -125,61 +125,63 @@ final sharedPreferencesProvider = Provider.autoDispose<SharedPreferences>(
 
 final counterRepositoryProvider = Provider.autoDispose<CounterRepository>(
   (ref) {
-    final repository = CounterRepository(ref.read);
+    final repository = CounterRepository(ref);
     ref.onDispose(() {
-      logger.v('[Dispose] CounterRepository ${repository.hashCode}');
+      logger.t('[Dispose] CounterRepository ${repository.hashCode}');
     });
-    logger.v('[Created] CounterRepository ${repository.hashCode}');
+    logger.t('[Created] CounterRepository ${repository.hashCode}');
     return repository;
   },
 );
 
 class CounterRepository {
-  CounterRepository(this._read);
+  CounterRepository(this.ref);
 
-  final Reader _read;
+  final Ref ref;
 
   Future<void> increment({
     required int number,
   }) async {
     logger.i('START CounterRepository increment');
-    await _read(sharedPreferencesProvider).setInt('counterKey', get() + number);
+    await ref
+        .read(sharedPreferencesProvider)
+        .setInt('counterKey', get() + number);
     logger.i('END CounterRepository increment');
   }
 
   int get() {
-    return _read(sharedPreferencesProvider).getInt('counterKey') ?? 0;
+    return ref.read(sharedPreferencesProvider).getInt('counterKey') ?? 0;
   }
 }
 
 final counterProvider =
     StateNotifierProvider.autoDispose<CounterStateNotifier, int>(
   (ref) {
-    final notifier = CounterStateNotifier(ref.read);
+    final notifier = CounterStateNotifier(ref);
     ref.onDispose(() {
-      logger.v('[Dispose] CounterStateNotifier ${notifier.hashCode}');
+      logger.t('[Dispose] CounterStateNotifier ${notifier.hashCode}');
     });
-    logger.v('[Created] CounterStateNotifier ${notifier.hashCode}');
+    logger.t('[Created] CounterStateNotifier ${notifier.hashCode}');
     return notifier;
   },
 );
 
 class CounterStateNotifier extends StateNotifier<int> {
-  CounterStateNotifier(this._read) : super(0) {
+  CounterStateNotifier(this.ref) : super(0) {
     _load();
   }
 
-  final Reader _read;
+  final Ref ref;
 
   void _load() {
-    state = _read(counterRepositoryProvider).get();
+    state = ref.read(counterRepositoryProvider).get();
   }
 
   Future<void> increment() async {
     logger.i('START CounterStateNotifier increment');
-    await _read(counterRepositoryProvider).increment(
-      number: _read(numberProvider),
-    );
+    await ref.read(counterRepositoryProvider).increment(
+          number: ref.read(numberProvider),
+        );
     _load();
     logger.i('END CounterStateNotifier increment');
   }
@@ -190,7 +192,7 @@ class CounterStateNotifier extends StateNotifier<int> {
 /// メモリ効率化の観点からautoDisposeはつけておきたい。
 ///
 /// ＜実際の動き＞
-/// 設定画面を抜けるとnumberProvierの値が初期値（1）に戻ってしまう（NG動作）
+/// 設定画面を抜けるとnumberProviderの値が初期値（1）に戻ってしまう（NG動作）
 ///
 /// numberProviderはautoDisposeつけているので参照されなくなったら破棄される。
 /// 値（状態）をメモリで保持しているので破棄されたら値が初期値（1）に戻る。
@@ -233,9 +235,9 @@ class CounterStateNotifier extends StateNotifier<int> {
 final numberProvider = StateProvider.autoDispose<int>(
   (ref) {
     ref.onDispose(() {
-      logger.v('[Dispose] number');
+      logger.t('[Dispose] number');
     });
-    logger.v('[Created] number');
+    logger.t('[Created] number');
     // ref.keepAlive();
     return 1;
   },

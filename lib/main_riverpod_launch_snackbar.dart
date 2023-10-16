@@ -16,7 +16,7 @@ void main() {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,7 +46,7 @@ class MyApp extends ConsumerWidget {
 }
 
 class Home extends ConsumerWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,15 +55,15 @@ class Home extends ConsumerWidget {
         title: const Text('Home'),
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (_) => const Second(),
                 ),
               );
             },
             icon: const Icon(Icons.navigate_next),
-          )
+          ),
         ],
       ),
       body: Column(
@@ -91,7 +91,7 @@ class Home extends ConsumerWidget {
 }
 
 class Second extends ConsumerWidget {
-  const Second({Key? key}) : super(key: key);
+  const Second({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

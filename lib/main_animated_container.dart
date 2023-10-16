@@ -5,7 +5,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,15 +14,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'AnimatedContainer Sample'),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -64,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 /// 背景が広がるアニメーション
 class _AnimatedAppBarBackground extends StatefulWidget {
-  const _AnimatedAppBarBackground({Key? key}) : super(key: key);
+  const _AnimatedAppBarBackground({super.key});
 
   @override
   State<_AnimatedAppBarBackground> createState() =>
@@ -130,7 +128,7 @@ class _AnimatedAppBarBackgroundState extends State<_AnimatedAppBarBackground> {
       height: _height,
       margin: _margin,
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: BorderRadius.all(Radius.circular(_radius)),
       ),
       onEnd: () {

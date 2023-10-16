@@ -12,7 +12,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends ConsumerWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,11 +38,11 @@ class MyHomePage extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () {
-              // ref.refresh(counterProvider);
-              ref.refresh(counterRepositoryProvider);
+              // ref.invalidate(counterProvider);
+              ref.invalidate(counterRepositoryProvider);
             },
             icon: const Icon(Icons.refresh),
-          )
+          ),
         ],
       ),
       body: Center(
@@ -54,7 +54,7 @@ class MyHomePage extends ConsumerWidget {
             ),
             Text(
               '$counter',
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
@@ -200,4 +200,3 @@ class CounterStateNotifier extends StateNotifier<int> {
 //     await _load();
 //   }
 // }
-

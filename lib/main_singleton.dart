@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 void main() {
   Alice.instance.say(); // 'My name is Alice.'
   Bob.instance.say(); // 'My name is Bob.'
