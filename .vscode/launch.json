@@ -42,6 +42,12 @@
       "program": "lib/main_material_design_3.dart",
       "request": "launch",
       "type": "dart"
+    },
+    {
+      "name": "riverpod_family_override",
+      "program": "lib/main_riverpod_family_override.dart",
+      "request": "launch",
+      "type": "dart"
     }
   ]
 }
