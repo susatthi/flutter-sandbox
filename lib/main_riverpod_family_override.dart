@@ -5,7 +5,25 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'main_riverpod_family_override.g.dart';
 
 void main() {
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        scaffoldBackgroundColorProvider(brightness: Brightness.light)
+            .overrideWith((ref) {
+          final colorScheme =
+              ref.watch(colorSchemeProvider(brightness: ref.brightness));
+          return colorScheme.onInverseSurface;
+        }),
+        scaffoldBackgroundColorProvider(brightness: Brightness.dark)
+            .overrideWith((ref) {
+          final colorScheme =
+              ref.watch(colorSchemeProvider(brightness: ref.brightness));
+          return colorScheme.onInverseSurface;
+        }),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
